@@ -95,7 +95,7 @@ dependencies = [
  "signal-hook-mio",
  "toml 0.7.4",
  "unicode-width",
- "vte",
+ "vte 0.11.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "windows-sys 0.48.0",
 ]
 
@@ -135,7 +135,7 @@ dependencies = [
  "anstyle-wincon",
  "colorchoice",
  "is-terminal",
- "utf8parse",
+ "utf8parse 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -150,7 +150,7 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e765fd216e48e067936442276d1d57399e37bce53c264d6fefbe298080cb57ee"
 dependencies = [
- "utf8parse",
+ "utf8parse 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1950,6 +1950,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
+name = "utf8parse"
+version = "0.2.1"
+source = "git+https://github.com/gulrotkake/vte-decps#908e9e773dd54400e86efcd6c58d62d65a21e538"
+
+[[package]]
 name = "vec_map"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1986,18 +1991,23 @@ name = "vte"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f5022b5fbf9407086c180e9557be968742d839e68346af7792b8592489732197"
+replace = "vte 0.11.1 (git+https://github.com/gulrotkake/vte-decps)"
+
+[[package]]
+name = "vte"
+version = "0.11.1"
+source = "git+https://github.com/gulrotkake/vte-decps#908e9e773dd54400e86efcd6c58d62d65a21e538"
 dependencies = [
  "log",
  "serde",
- "utf8parse",
+ "utf8parse 0.2.1 (git+https://github.com/gulrotkake/vte-decps)",
  "vte_generate_state_changes",
 ]
 
 [[package]]
 name = "vte_generate_state_changes"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d257817081c7dffcdbab24b9e62d2def62e2ff7d00b1c20062551e6cccc145ff"
+source = "git+https://github.com/gulrotkake/vte-decps#908e9e773dd54400e86efcd6c58d62d65a21e538"
 dependencies = [
  "proc-macro2",
  "quote",
