@@ -1971,6 +1971,11 @@ impl<T: EventListener> Handler for Term<T> {
         let text = format!("\x1b[8;{};{}t", self.screen_lines(), self.columns());
         self.event_proxy.send_event(Event::PtyWrite(text));
     }
+
+    #[inline]
+    fn play_sound(&mut self, volume: u16, duration: u16, notes: Vec<u16>) {
+        trace!("Play sound volume: {:?}, duration {:?}, notes: {:?}", volume, duration, notes);
+    }
 }
 
 /// Terminal version for escape sequence reports.
