@@ -21,6 +21,13 @@ use crate::term::cell::{Cell, Flags, LineLength};
 use crate::term::color::Colors;
 use crate::vi_mode::{ViModeCursor, ViMotion};
 
+use rodio::source::{SineWave, Source};
+use rodio::Sink;
+use std::time::Duration;
+
+use std::sync::mpsc::{self, Sender};
+use std::thread;
+
 pub mod cell;
 pub mod color;
 pub mod search;
@@ -304,6 +311,9 @@ pub struct Term<T> {
 
     /// Information about damaged cells.
     damage: TermDamageState,
+
+    /// Transmit play command to play thread
+    play_tx: Sender<Vec<u16>>,
 }
 
 impl<T> Term<T> {
@@ -344,6 +354,37 @@ impl<T> Term<T> {
         // Initialize terminal damage, covering the entire terminal upon launch.
         let damage = TermDamageState::new(num_cols, num_lines);
 
+        let (tx, rx) = mpsc::channel();
+
+        thread::spawn(move || {
+            let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+            let sink: Sink = Sink::try_new(&stream_handle).unwrap();
+            loop {
+                let settings: Vec<u16> = match rx.recv() {
+                    Ok(data) => data,
+                    Err(_) => break,
+                };
+
+                let notes = rx.recv().unwrap();
+
+                sink.set_volume((1.0 as f32).min(1.0 / 7.0 * settings[0] as f32));
+
+                let freq = 523.0;
+                for note in notes {
+                    let adjust_freq = if note > 0 && note <= 26 {
+                        freq * f32::powf(2.0, note as f32 / 12.0)
+                    } else {
+                        0.0
+                    };
+                    let source = SineWave::new(adjust_freq)
+                        .take_duration(Duration::from_secs_f32(settings[1] as f32 / 32.0))
+                        .delay(Duration::from_millis(31));
+                    sink.append(source);
+                }
+                sink.sleep_until_end();
+            }
+        });
+
         Term {
             grid,
             inactive_grid: alt,
@@ -363,6 +404,7 @@ impl<T> Term<T> {
             title_stack: Vec::new(),
             selection: None,
             damage,
+            play_tx: tx,
         }
     }
 
@@ -1975,6 +2017,8 @@ impl<T: EventListener> Handler for Term<T> {
     #[inline]
     fn play_sound(&mut self, volume: u16, duration: u16, notes: Vec<u16>) {
         trace!("Play sound volume: {:?}, duration {:?}, notes: {:?}", volume, duration, notes);
+        self.play_tx.send(vec![volume, duration]).unwrap();
+        self.play_tx.send(notes).unwrap();
     }
 }
 
